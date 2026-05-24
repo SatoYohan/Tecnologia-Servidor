@@ -14,7 +14,7 @@ class UpdateUsuarioRequest extends BaseRequest
         $userId = $this->route('id');
 
         return [
-            'nome_completo' => [
+            'nome' => [
                 'sometimes',
                 'string',
                 'min:3',

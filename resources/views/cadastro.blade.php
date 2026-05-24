@@ -235,7 +235,7 @@
             
             const payload = {
                 email: document.getElementById('email').value,
-                nome_completo: document.getElementById('nome_completo').value,
+                nome: document.getElementById('nome_completo').value,
                 usuario: document.getElementById('usuario').value,
                 senha: document.getElementById('senha').value,
                 biografia: document.getElementById('biografia').value,
@@ -249,7 +249,7 @@
             alertBox.innerHTML = '';
 
             try {
-                const response = await fetch(`${baseUrl}/api/usuarios`, {
+                const response = await fetch(`${baseUrl}/usuarios`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

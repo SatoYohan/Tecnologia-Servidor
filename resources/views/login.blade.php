@@ -202,7 +202,7 @@
             alertBox.style.display = 'none';
 
             try {
-                const response = await fetch(`${baseUrl}/api/usuarios/login`, {
+                const response = await fetch(`${baseUrl}/usuarios/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

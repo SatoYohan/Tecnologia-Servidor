@@ -276,21 +276,21 @@
         // Load profile data
         async function loadProfile() {
             try {
-                const res = await fetch(`${apiBaseUrl}/api/usuarios/${userId}`, { headers: authHeaders });
+                const res = await fetch(`${apiBaseUrl}/usuarios/${userId}`, { headers: authHeaders });
                 const result = await res.json();
 
                 if (res.ok && result.status === 'sucesso') {
                     const data = result.dados;
-                    document.getElementById('displayUser').innerText = data.nome_completo;
+                    document.getElementById('displayUser').innerText = data.nome;
                     document.getElementById('displayEmail').innerText = '@' + data.usuario;
                     
-                    document.getElementById('nome_completo').value = data.nome_completo;
+                    document.getElementById('nome_completo').value = data.nome;
                     document.getElementById('usuario').value = data.usuario;
                     document.getElementById('email').value = data.email;
                     document.getElementById('biografia').value = data.biografia || '';
                     document.getElementById('foto').value = data.foto_url || '';
                     
-                    document.getElementById('avatarImg').src = data.foto_url || 'https://ui-avatars.com/api/?name=' + data.nome_completo + '&background=efefef&color=262626';
+                    document.getElementById('avatarImg').src = data.foto_url || 'https://ui-avatars.com/api/?name=' + data.nome + '&background=efefef&color=262626';
                 } else {
                     if (res.status === 401) logout();
                     if (res.status === 403) {
@@ -312,7 +312,7 @@
             btn.innerText = "Salvando...";
 
             const payload = {
-                nome_completo: document.getElementById('nome_completo').value,
+                nome: document.getElementById('nome_completo').value,
                 usuario: document.getElementById('usuario').value,
                 email: document.getElementById('email').value,
                 biografia: document.getElementById('biografia').value,
@@ -323,7 +323,7 @@
             if (senha) payload.senha = senha;
 
             try {
-                const res = await fetch(`${apiBaseUrl}/api/usuarios/${userId}`, {
+                const res = await fetch(`${apiBaseUrl}/usuarios/${userId}`, {
                     method: 'PATCH',
                     headers: authHeaders,
                     body: JSON.stringify(payload)
@@ -354,7 +354,7 @@
             if(!confirm("Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.")) return;
 
             try {
-                const res = await fetch(`${apiBaseUrl}/api/usuarios/${userId}`, {
+                const res = await fetch(`${apiBaseUrl}/usuarios/${userId}`, {
                     method: 'DELETE',
                     headers: authHeaders
                 });
@@ -379,7 +379,7 @@
         // Logout
         async function logout() {
             try {
-                await fetch(`${apiBaseUrl}/api/usuarios/logout`, {
+                await fetch(`${apiBaseUrl}/usuarios/logout`, {
                     method: 'POST',
                     headers: authHeaders
                 });

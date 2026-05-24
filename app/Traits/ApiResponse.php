@@ -34,11 +34,16 @@ trait ApiResponse
      */
     protected function erro(string $codigo, string $mensagem, $dados = [], int $statusCode = 400)
     {
-        return response()->json([
+        $response = [
             'status' => 'erro',
             'codigo' => $codigo,
             'mensagem' => $mensagem,
-            'dados' => (object) $dados,
-        ], $statusCode);
+        ];
+        
+        if (!empty($dados)) {
+            $response['dados'] = (object) $dados;
+        }
+
+        return response()->json($response, $statusCode);
     }
 }

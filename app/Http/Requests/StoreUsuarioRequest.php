@@ -12,7 +12,7 @@ class StoreUsuarioRequest extends BaseRequest
     public function rules()
     {
         return [
-            'nome_completo' => [
+            'nome' => [
                 'required',
                 'string',
                 'min:3',

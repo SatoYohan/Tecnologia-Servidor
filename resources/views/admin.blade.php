@@ -175,7 +175,7 @@
         // LIST USERS
         async function loadUsers() {
             try {
-                const res = await fetch(`${apiBaseUrl}/api/usuarios`, { headers: authHeaders });
+                const res = await fetch(`${apiBaseUrl}/usuarios`, { headers: authHeaders });
                 const result = await res.json();
                 const tbody = document.getElementById('usersTable');
 
@@ -184,7 +184,7 @@
                     tbody.innerHTML = users.map(u => `
                         <tr>
                             <td>${u.id}</td>
-                            <td>${u.nome_completo}</td>
+                            <td>${u.nome}</td>
                             <td>@${u.usuario}</td>
                             <td>${u.email}</td>
                             <td><span class="badge ${u.is_admin ? 'badge-admin' : 'badge-user'}">${u.is_admin ? 'Admin' : 'Usuário'}</span></td>
@@ -208,13 +208,13 @@
         // VIEW USER
         async function viewUser(id) {
             try {
-                const res = await fetch(`${apiBaseUrl}/api/usuarios/${id}`, { headers: authHeaders });
+                const res = await fetch(`${apiBaseUrl}/usuarios/${id}`, { headers: authHeaders });
                 const result = await res.json();
                 if (res.ok && result.status === 'sucesso') {
                     const d = result.dados;
                     document.getElementById('viewContent').innerHTML = `
                         <div class="detail-row"><span class="detail-label">ID</span><span class="detail-value">${d.id}</span></div>
-                        <div class="detail-row"><span class="detail-label">Nome</span><span class="detail-value">${d.nome_completo}</span></div>
+                        <div class="detail-row"><span class="detail-label">Nome</span><span class="detail-value">${d.nome}</span></div>
                         <div class="detail-row"><span class="detail-label">Usuário</span><span class="detail-value">@${d.usuario}</span></div>
                         <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${d.email}</span></div>
                         <div class="detail-row"><span class="detail-label">Biografia</span><span class="detail-value">${d.biografia || '—'}</span></div>
@@ -230,12 +230,12 @@
         // EDIT USER — open modal
         async function editUser(id) {
             try {
-                const res = await fetch(`${apiBaseUrl}/api/usuarios/${id}`, { headers: authHeaders });
+                const res = await fetch(`${apiBaseUrl}/usuarios/${id}`, { headers: authHeaders });
                 const result = await res.json();
                 if (res.ok && result.status === 'sucesso') {
                     const d = result.dados;
                     document.getElementById('edit_id').value = d.id;
-                    document.getElementById('edit_nome').value = d.nome_completo;
+                    document.getElementById('edit_nome').value = d.nome;
                     document.getElementById('edit_usuario').value = d.usuario;
                     document.getElementById('edit_email').value = d.email;
                     document.getElementById('edit_biografia').value = d.biografia || '';
@@ -257,7 +257,7 @@
             btn.disabled = true; btn.innerText = 'Salvando...';
 
             const payload = {
-                nome_completo: document.getElementById('edit_nome').value,
+                nome: document.getElementById('edit_nome').value,
                 usuario: document.getElementById('edit_usuario').value,
                 email: document.getElementById('edit_email').value,
                 biografia: document.getElementById('edit_biografia').value,
@@ -267,7 +267,7 @@
             if (senha) payload.senha = senha;
 
             try {
-                const res = await fetch(`${apiBaseUrl}/api/usuarios/${id}`, {
+                const res = await fetch(`${apiBaseUrl}/usuarios/${id}`, {
                     method: 'PATCH', headers: authHeaders, body: JSON.stringify(payload)
                 });
                 const result = await res.json();
@@ -293,7 +293,7 @@
         async function deleteUser(id, username) {
             if (!confirm(`Tem certeza que deseja excluir o usuário @${username}?`)) return;
             try {
-                const res = await fetch(`${apiBaseUrl}/api/usuarios/${id}`, {
+                const res = await fetch(`${apiBaseUrl}/usuarios/${id}`, {
                     method: 'DELETE', headers: authHeaders
                 });
                 const result = await res.json();
@@ -308,7 +308,7 @@
 
         // LOGOUT
         async function logout() {
-            try { await fetch(`${apiBaseUrl}/api/usuarios/logout`, { method: 'POST', headers: authHeaders }); } catch (e) {}
+            try { await fetch(`${apiBaseUrl}/usuarios/logout`, { method: 'POST', headers: authHeaders }); } catch (e) {}
             localStorage.clear(); window.location.href = '/login';
         }
 

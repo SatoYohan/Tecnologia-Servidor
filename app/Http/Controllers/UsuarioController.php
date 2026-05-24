@@ -27,7 +27,7 @@ class UsuarioController extends Controller
         $usuarios = User::all()->map(function ($user) {
             return [
                 'id' => (string) $user->id,
-                'nome_completo' => $user->nome_completo,
+                'nome' => $user->nome_completo,
                 'usuario' => $user->usuario,
                 'email' => $user->email,
                 'biografia' => $user->biografia,
@@ -53,7 +53,7 @@ class UsuarioController extends Controller
         $dados = $request->validated();
         
         $user = User::create([
-            'nome_completo' => $dados['nome_completo'],
+            'nome_completo' => $dados['nome'],
             'usuario' => $dados['usuario'],
             'email' => $dados['email'],
             'senha' => $dados['senha'],
@@ -63,7 +63,7 @@ class UsuarioController extends Controller
 
         return $this->sucesso('USUARIO_CRIADO', 'Usuário cadastrado com sucesso', [
             'id' => (string) $user->id,
-            'nome_completo' => $user->nome_completo,
+            'nome' => $user->nome_completo,
             'usuario' => $user->usuario,
             'email' => $user->email,
             'biografia' => $user->biografia,
@@ -93,7 +93,7 @@ class UsuarioController extends Controller
 
         return $this->sucesso('USUARIO_ENCONTRADO', 'Dados do usuário recuperados', [
             'id' => (string) $user->id,
-            'nome_completo' => $user->nome_completo,
+            'nome' => $user->nome_completo,
             'usuario' => $user->usuario,
             'email' => $user->email,
             'biografia' => $user->biografia,
@@ -126,8 +126,8 @@ class UsuarioController extends Controller
 
         $updateData = [];
 
-        if (isset($dados['nome_completo'])) {
-            $updateData['nome_completo'] = $dados['nome_completo'];
+        if (isset($dados['nome'])) {
+            $updateData['nome_completo'] = $dados['nome'];
         }
         if (isset($dados['usuario'])) {
             $updateData['usuario'] = $dados['usuario'];
@@ -149,7 +149,7 @@ class UsuarioController extends Controller
 
         return $this->sucesso('USUARIO_ATUALIZADO', 'Usuário atualizado com sucesso', [
             'id' => (string) $user->id,
-            'nome_completo' => $user->nome_completo,
+            'nome' => $user->nome_completo,
             'usuario' => $user->usuario,
             'email' => $user->email,
             'biografia' => $user->biografia,
