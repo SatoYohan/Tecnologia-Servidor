@@ -158,9 +158,8 @@
         const apiBaseUrl = localStorage.getItem('api_base_url') || window.location.origin;
 
         if (!token || !userId) { window.location.href = '/login'; }
-        if (!isAdmin) { window.location.href = '/perfil'; }
 
-        const authHeaders = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+        const authHeaders = { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': `Bearer ${token}` };
         const alertBox = document.getElementById('alertBox');
 
         function showAlert(msg, type, el = alertBox) {

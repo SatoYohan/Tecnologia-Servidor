@@ -182,7 +182,7 @@
     <header>
         <div class="logo">Instagram</div>
         <div class="header-actions">
-            <a href="/admin" class="admin-link" id="adminLink" style="display: none;">Painel ADM</a>
+            <a href="/admin" class="admin-link" id="adminLink">Painel ADM</a>
             <button class="logout-btn" onclick="logout()">Sair</button>
         </div>
     </header>
@@ -242,10 +242,7 @@
             window.location.href = '/login';
         }
 
-        // Show admin link if user is admin
-        if (isAdmin) {
-            document.getElementById('adminLink').style.display = 'inline-block';
-        }
+
 
         const authHeaders = {
             'Content-Type': 'application/json',
