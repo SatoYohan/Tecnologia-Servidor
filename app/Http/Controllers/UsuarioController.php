@@ -20,8 +20,8 @@ class UsuarioController extends Controller
     {
         $authUser = Auth::guard('api')->user();
 
-        if (!$authUser || !$authUser->isAdmin()) {
-            return $this->erro('ACESSO_NEGADO', 'Apenas administradores podem listar usuários', [], 403);
+        if (!$authUser) {
+            return $this->erro('ACESSO_NEGADO', 'Usuário não autenticado', [], 401);
         }
 
         $usuarios = User::all()->map(function ($user) {

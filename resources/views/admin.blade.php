@@ -189,8 +189,8 @@
                             <td><span class="badge ${u.is_admin ? 'badge-admin' : 'badge-user'}">${u.is_admin ? 'Admin' : 'Usuário'}</span></td>
                             <td>
                                 <button class="btn btn-view" onclick="viewUser(${u.id})">Ver</button>
-                                <button class="btn btn-edit" onclick="editUser(${u.id})">Editar</button>
-                                <button class="btn btn-delete" onclick="deleteUser(${u.id}, '${u.usuario}')">Excluir</button>
+                                ${isAdmin || u.id == userId ? `<button class="btn btn-edit" onclick="editUser(${u.id})">Editar</button>` : ''}
+                                ${isAdmin || u.id == userId ? `<button class="btn btn-delete" onclick="deleteUser(${u.id}, '${u.usuario}')">Excluir</button>` : ''}
                             </td>
                         </tr>
                     `).join('');
