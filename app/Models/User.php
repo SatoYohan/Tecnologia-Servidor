@@ -62,6 +62,22 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
+     * Relacionamento: User tem muitos Posts.
+     */
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Relacionamento: User tem muitas Curtidas.
+     */
+    public function curtidas()
+    {
+        return $this->hasMany(Curtida::class);
+    }
+
+    /**
      * Get the password for the user.
      */
     public function getAuthPasswordName()
