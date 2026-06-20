@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Post;
+use App\Models\Curtida;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +16,10 @@ class MonitorController extends Controller
         // Pega todos os usuários
         $usuarios = User::orderBy('created_at', 'desc')->get();
         $totalUsuarios = $usuarios->count();
+
+        // Estatísticas de Posts e Curtidas (Entrega 3)
+        $totalPosts = Post::count();
+        $totalCurtidas = Curtida::count();
 
         // Tenta ler as últimas 20 linhas do laravel.log
         $logPath = storage_path('logs/laravel.log');
@@ -47,13 +53,15 @@ class MonitorController extends Controller
             ->get();
 
         return view('monitor', [
-            'usuarios'      => $usuarios,
-            'totalUsuarios' => $totalUsuarios,
-            'logs'          => $logs,
-            'localIp'       => $localIp,
-            'requestIp'     => $requestIp,
-            'dbInfo'        => $dbInfo,
-            'sessoesAtivas' => $sessoesAtivas
+            'usuarios'       => $usuarios,
+            'totalUsuarios'  => $totalUsuarios,
+            'totalPosts'     => $totalPosts,
+            'totalCurtidas'  => $totalCurtidas,
+            'logs'           => $logs,
+            'localIp'        => $localIp,
+            'requestIp'      => $requestIp,
+            'dbInfo'         => $dbInfo,
+            'sessoesAtivas'  => $sessoesAtivas
         ]);
     }
 }

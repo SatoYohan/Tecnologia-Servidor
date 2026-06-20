@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Servidor - Status Online</title>
+    <meta http-equiv="refresh" content="15">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -190,6 +191,8 @@
             <ul class="info-list" style="margin-top: 15px;">
                 <li><span>IP do Servidor</span> <span>{{ $localIp }}</span></li>
                 <li><span>Total de Contas</span> <span>{{ $totalUsuarios }}</span></li>
+                <li><span>Total de Posts</span> <span>{{ $totalPosts }}</span></li>
+                <li><span>Total de Curtidas</span> <span>{{ $totalCurtidas }}</span></li>
             </ul>
             <p style="color: var(--text-secondary); margin-top: 15px; font-size: 13px;">Para testes em outros computadores, peça que acessem: <strong style="color:var(--text-primary);">http://{{ $localIp }}:22000</strong></p>
         </div>
@@ -213,7 +216,7 @@
                     <td style="font-family: monospace; color: var(--text-secondary); font-size: 13px;">{{ substr($sessao->id, 0, 15) }}...</td>
                     <td class="{{ $sessao->ip_address == $requestIp ? 'highlight-ip' : '' }}">{{ $sessao->ip_address }} {!! $sessao->ip_address == $requestIp ? '<small>(Você)</small>' : '' !!}</td>
                     <td style="font-size: 13px; color: var(--text-secondary);">{{ Str::limit($sessao->user_agent, 60) }}</td>
-                    <td>{{ date('d/m/Y H:i:s', $sessao->last_activity) }}</td>
+                    <td>{{ \Carbon\Carbon::createFromTimestamp($sessao->last_activity)->timezone('America/Sao_Paulo')->format('d/m/Y H:i:s') }}</td>
                 </tr>
                 @empty
                 <tr>
@@ -244,7 +247,7 @@
                     <td style="font-weight: 500;">{{ $user->nome_completo }}</td>
                     <td style="color: var(--accent);">{{ $user->usuario }}</td>
                     <td>{!! $user->is_admin ? '<span class="badge" style="background: rgba(239,68,68,0.2); color: var(--danger);">Admin</span>' : '<span class="badge" style="background: rgba(59,130,246,0.2); color: var(--accent);">Comum</span>' !!}</td>
-                    <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                    <td>{{ $user->created_at->timezone('America/Sao_Paulo')->format('d/m/Y H:i') }}</td>
                 </tr>
                 @empty
                 <tr>
