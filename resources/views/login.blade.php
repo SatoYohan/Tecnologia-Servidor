@@ -170,7 +170,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('jwt_token');
             if(token) {
-                window.location.href = '/perfil';
+                window.location.href = '/feed';
             }
             
             // Restore previous IP/Port if exists
@@ -219,7 +219,7 @@
                     localStorage.setItem('user_is_admin', result.dados.usuario.is_admin ? '1' : '0');
                     localStorage.setItem('api_base_url', baseUrl);
                     
-                    window.location.href = '/perfil';
+                    window.location.href = '/feed';
                 } else {
                     let errorMsg = result.mensagem || "Erro ao fazer login.";
                     alertBox.innerText = errorMsg;
