@@ -180,8 +180,9 @@
 <body>
 
     <header>
-        <div class="logo">Instagram</div>
+        <div class="logo" style="cursor:pointer" onclick="window.location.href='/feed'">Instagram</div>
         <div class="header-actions">
+            <a href="/feed" style="color:var(--primary-color);font-weight:600;font-size:14px;text-decoration:none;padding:6px 12px;border:1px solid var(--primary-color);border-radius:6px;transition:all 0.2s">Feed</a>
             <a href="/admin" class="admin-link" id="adminLink">Painel ADM</a>
             <button class="logout-btn" onclick="logout()">Sair</button>
         </div>
@@ -216,8 +217,15 @@
                 <textarea id="biografia" maxlength="150"></textarea>
             </div>
             <div class="input-group">
-                <label>URL da Foto</label>
-                <input type="url" id="foto">
+                <label>Foto de Perfil</label>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+                    <img id="fotoPreview" src="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--border-color);background:#efefef" alt="Preview">
+                    <div style="flex:1">
+                        <input type="file" id="fotoInput" accept=".jpg,.jpeg,.png" style="font-size:13px">
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">JPG, JPEG ou PNG (máx. 5MB)</div>
+                    </div>
+                </div>
+                <input type="hidden" id="foto" value="">
             </div>
             <div class="input-group">
                 <label>Nova Senha (deixe em branco para não alterar)</label>
@@ -287,7 +295,11 @@
                     document.getElementById('biografia').value = data.biografia || '';
                     document.getElementById('foto').value = data.foto_url || '';
                     
-                    document.getElementById('avatarImg').src = data.foto_url || 'https://ui-avatars.com/api/?name=' + data.nome + '&background=efefef&color=262626';
+                    const fotoSrc = (data.foto_url && data.foto_url.startsWith('data:image'))
+                        ? data.foto_url
+                        : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.nome) + '&background=efefef&color=262626';
+                    document.getElementById('avatarImg').src = fotoSrc;
+                    document.getElementById('fotoPreview').src = fotoSrc;
                 } else {
                     if (res.status === 401) logout();
                     if (res.status === 403) {
@@ -385,6 +397,28 @@
             localStorage.clear();
             window.location.href = '/login';
         }
+
+        // Foto upload handler (Base64)
+        document.getElementById('fotoInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!validTypes.includes(file.type)) {
+                showAlert('Formato inválido! Use JPG, JPEG ou PNG.', 'error');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('Imagem muito grande! Máximo 5MB.', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                document.getElementById('foto').value = ev.target.result;
+                document.getElementById('fotoPreview').src = ev.target.result;
+                document.getElementById('avatarImg').src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
 
         // Initialize
         loadProfile();
