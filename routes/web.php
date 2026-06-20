@@ -14,6 +14,10 @@ Route::get('/cadastro', function () {
     return view('cadastro');
 });
 
+Route::get('/feed', function () {
+    return view('feed');
+});
+
 Route::get('/perfil', function () {
     return view('perfil');
 });
