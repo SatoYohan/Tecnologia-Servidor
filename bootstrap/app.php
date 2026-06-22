@@ -19,5 +19,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
+            if ($request->is('usuarios/*') || $request->is('api/*') || $request->expectsJson()) {
+                return response()->json([
+                    'status' => 'erro',
+                    'codigo' => 'ACESSO_NEGADO',
+                    'mensagem' => 'Token não fornecido ou expirado/inválido'
+                ], 401);
+            }
+        });
     })->create();
