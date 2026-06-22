@@ -994,33 +994,78 @@
             container.appendChild(card);
         }
 
-        // ===== LIKE/UNLIKE =====
         async function curtirPost(postId, postUserId, btn) {
+            console.log(`Tentando curtir/descurtir post ${postId} do usuário ${postUserId} (Optimistic Update)`);
+            
+            const wasLiked = btn.classList.contains('liked');
+            const willBeLiked = !wasLiked;
+            
+            // Obter contador atual e calcular novo valor temporário
+            const likeCountEl = btn.querySelector('.like-count');
+            const currentCount = parseInt(likeCountEl.textContent) || 0;
+            const optimisticCount = willBeLiked ? currentCount + 1 : Math.max(0, currentCount - 1);
+            
+            // 1. Atualizar UI imediatamente (Feedback Visual Instantâneo)
+            btn.classList.toggle('liked', willBeLiked);
+            btn.classList.add('animate');
+            setTimeout(() => btn.classList.remove('animate'), 400);
+            
+            const svg = btn.querySelector('svg');
+            if (svg) {
+                svg.setAttribute('fill', willBeLiked ? 'var(--heart-color)' : 'none');
+                svg.setAttribute('stroke', willBeLiked ? 'var(--heart-color)' : 'currentColor');
+            }
+            likeCountEl.textContent = optimisticCount;
+            
+            // 2. Fazer requisição ao servidor em background
             try {
                 const res = await fetch(`${apiBaseUrl}/usuarios/${postUserId}/posts/${postId}`, {
                     method: 'POST',
                     headers: authHeaders
                 });
-                const result = await res.json();
-
-                if (res.ok && result.status === 'sucesso') {
-                    const acao = result.dados.acao;
-                    const count = result.dados.curtidas;
-                    const isLiked = acao === 'curtiu';
-
-                    btn.classList.toggle('liked', isLiked);
-                    btn.classList.add('animate');
-                    setTimeout(() => btn.classList.remove('animate'), 400);
-
-                    const svg = btn.querySelector('.heart-icon path');
-                    btn.querySelector('svg').setAttribute('fill', isLiked ? 'var(--heart-color)' : 'none');
-                    btn.querySelector('svg').setAttribute('stroke', isLiked ? 'var(--heart-color)' : 'currentColor');
-                    btn.querySelector('.like-count').textContent = count;
+                
+                console.log(`Resposta do servidor ao curtir - Status: ${res.status}`);
+                
+                if (res.ok) {
+                    let result = {};
+                    const contentType = res.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        result = await res.json();
+                        console.log('Dados recebidos do servidor:', result);
+                    }
+                    
+                    // Sincronizar com o total oficial retornado do servidor se disponível
+                    const dados = result.dados || result;
+                    if (dados && dados.curtidas !== undefined) {
+                        likeCountEl.textContent = dados.curtidas;
+                    } else if (dados && dados.likes_count !== undefined) {
+                        likeCountEl.textContent = dados.likes_count;
+                    }
                 } else {
-                    showAlert(result.mensagem || 'Erro ao curtir', 'error');
+                    let errorMsg = 'Erro do servidor';
+                    try {
+                        const contentType = res.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            const errResult = await res.json();
+                            errorMsg = errResult.mensagem || errResult.message || errorMsg;
+                        } else {
+                            const text = await res.text();
+                            errorMsg = text.substring(0, 100) || errorMsg;
+                        }
+                    } catch (_) {}
+                    throw new Error(errorMsg);
                 }
             } catch (e) {
-                showAlert('Erro de conexão', 'error');
+                console.error('Erro na sincronização de curtida:', e);
+                showAlert(`Erro ao atualizar curtida: ${e.message || e}`, 'error');
+                
+                // Reverter UI ao estado anterior caso falhe
+                btn.classList.toggle('liked', wasLiked);
+                if (svg) {
+                    svg.setAttribute('fill', wasLiked ? 'var(--heart-color)' : 'none');
+                    svg.setAttribute('stroke', wasLiked ? 'var(--heart-color)' : 'currentColor');
+                }
+                likeCountEl.textContent = currentCount;
             }
         }
 
@@ -1081,7 +1126,8 @@
                     showAlert(result.mensagem || 'Erro ao atualizar', 'error');
                 }
             } catch (e) {
-                showAlert('Erro de conexão', 'error');
+                console.error('Exceção capturada em salvarEdicao:', e);
+                showAlert(`Erro de conexão: ${e.message || e}`, 'error');
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Salvar';
@@ -1106,7 +1152,8 @@
                     showAlert(result.mensagem || 'Erro ao excluir', 'error');
                 }
             } catch (e) {
-                showAlert('Erro de conexão', 'error');
+                console.error('Exceção capturada em deletarPost:', e);
+                showAlert(`Erro de conexão: ${e.message || e}`, 'error');
             }
         }
 
