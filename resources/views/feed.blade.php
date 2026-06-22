@@ -885,7 +885,9 @@
                     const res = await fetch(`${apiBaseUrl}/usuarios/${selectedUserId}/posts`, { headers: authHeaders });
                     const result = await res.json();
                     if (res.ok && result.status === 'sucesso') {
-                        posts = result.posts.map(p => ({ ...p, user_id: selectedUserId }));
+                        let list = result.posts || (result.dados && result.dados.posts) || result.dados || [];
+                        if (!Array.isArray(list)) list = [];
+                        posts = list.map(p => ({ ...p, user_id: selectedUserId }));
                     }
                 } else {
                     // Feed de todos — buscar posts de cada usuário
@@ -894,7 +896,9 @@
                             const res = await fetch(`${apiBaseUrl}/usuarios/${u.id}/posts`, { headers: authHeaders });
                             const result = await res.json();
                             if (res.ok && result.status === 'sucesso') {
-                                return result.posts.map(p => ({ ...p, user_id: u.id, user_nome: u.nome, user_usuario: u.usuario, user_foto: u.foto_url }));
+                                let list = result.posts || (result.dados && result.dados.posts) || result.dados || [];
+                                if (!Array.isArray(list)) list = [];
+                                return list.map(p => ({ ...p, user_id: u.id, user_nome: u.nome, user_usuario: u.usuario, user_foto: u.foto_url }));
                             }
                         } catch (e) {}
                         return [];
