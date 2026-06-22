@@ -675,10 +675,31 @@
             setTimeout(() => { alert.style.display = 'none'; }, 4000);
         }
 
+        // ===== BASE64 IMAGE HELPER =====
+        function formatBase64Image(src, defaultFallback = null) {
+            if (!src) return defaultFallback;
+            const trimmed = src.trim();
+            if (trimmed.startsWith('data:image/') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+                return trimmed;
+            }
+            // Decidir formato aproximado com base nos cabeçalhos mágicos Base64
+            let format = 'jpeg';
+            if (trimmed.startsWith('iVBORw')) {
+                format = 'png';
+            } else if (trimmed.startsWith('R0lGOD')) {
+                format = 'gif';
+            } else if (trimmed.startsWith('UklGR')) {
+                format = 'webp';
+            }
+            return `data:image/${format};base64,${trimmed}`;
+        }
+
         // ===== USER AVATAR HELPER =====
         function getUserAvatar(user) {
-            if (user.foto_url && user.foto_url.startsWith('data:image')) {
-                return user.foto_url;
+            if (!user) return `https://ui-avatars.com/api/?name=U&background=efefef&color=262626&size=80`;
+            if (user.foto_url) {
+                const foto = formatBase64Image(user.foto_url);
+                if (foto) return foto;
             }
             return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.nome || 'U')}&background=efefef&color=262626&size=80`;
         }
@@ -946,8 +967,8 @@
                 if (u) { userName = u.usuario; userNome = u.nome; userFoto = u.foto_url; }
             }
 
-            const avatarSrc = (userFoto && userFoto.startsWith('data:image'))
-                ? userFoto
+            const avatarSrc = userFoto 
+                ? formatBase64Image(userFoto, `https://ui-avatars.com/api/?name=${encodeURIComponent(userNome || userName || 'U')}&background=efefef&color=262626&size=68`)
                 : `https://ui-avatars.com/api/?name=${encodeURIComponent(userNome || userName || 'U')}&background=efefef&color=262626&size=68`;
 
             const liked = post.curtiu;
@@ -976,7 +997,7 @@
                     </div>` : ''}
                 </div>
                 <div class="post-image-container">
-                    <img src="${post.imagem}" class="post-image" alt="Post de ${userName}">
+                    <img src="${formatBase64Image(post.imagem)}" class="post-image" alt="Post de ${userName}">
                 </div>
                 <div class="post-actions">
                     <button class="like-btn ${liked ? 'liked' : ''}" onclick="curtirPost('${post.id}', '${postUserId}', this)">

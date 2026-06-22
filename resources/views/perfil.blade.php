@@ -257,6 +257,25 @@
             'Authorization': `Bearer ${token}`
         };
 
+        // ===== BASE64 IMAGE HELPER =====
+        function formatBase64Image(src, defaultFallback = null) {
+            if (!src) return defaultFallback;
+            const trimmed = src.trim();
+            if (trimmed.startsWith('data:image/') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+                return trimmed;
+            }
+            // Decidir formato aproximado com base nos cabeçalhos mágicos Base64
+            let format = 'jpeg';
+            if (trimmed.startsWith('iVBORw')) {
+                format = 'png';
+            } else if (trimmed.startsWith('R0lGOD')) {
+                format = 'gif';
+            } else if (trimmed.startsWith('UklGR')) {
+                format = 'webp';
+            }
+            return `data:image/${format};base64,${trimmed}`;
+        }
+
         const alertBox = document.getElementById('alertBox');
 
         function showAlert(msg, type, details = null) {
@@ -295,8 +314,8 @@
                     document.getElementById('biografia').value = data.biografia || '';
                     document.getElementById('foto').value = data.foto_url || '';
                     
-                    const fotoSrc = (data.foto_url && data.foto_url.startsWith('data:image'))
-                        ? data.foto_url
+                    const fotoSrc = data.foto_url 
+                        ? formatBase64Image(data.foto_url, 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.nome) + '&background=efefef&color=262626')
                         : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.nome) + '&background=efefef&color=262626';
                     document.getElementById('avatarImg').src = fotoSrc;
                     document.getElementById('fotoPreview').src = fotoSrc;
