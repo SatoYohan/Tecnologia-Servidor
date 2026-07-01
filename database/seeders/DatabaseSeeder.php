@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
                 'nome_completo' => 'Administrador',
                 'usuario' => 'admin',
                 'email' => 'admin@instagram.com',
-                'senha' => 'admin1234',
+                'senha' => 'admin123',
                 'biografia' => 'Administrador do sistema',
                 'is_admin' => true,
             ]);
@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
                 'nome_completo' => 'Usuario Comum',
                 'usuario' => 'user_comum',
                 'email' => 'comum@instagram.com',
-                'senha' => 'user1234',
+                'senha' => 'user123',
                 'biografia' => 'Usuario comum do sistema',
                 'is_admin' => false,
             ]);
