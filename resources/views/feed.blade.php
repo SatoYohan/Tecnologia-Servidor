@@ -957,6 +957,13 @@
         function renderPost(post, container) {
             const postUserId = post.user_id;
             const isMine = String(postUserId) === String(userId);
+            console.log('renderPost diagnostic:', {
+                postId: post.id,
+                postUserId: postUserId,
+                loggedInUserId: userId,
+                isMine: isMine,
+                isAdmin: isAdmin
+            });
 
             // Find user info
             let userName = post.user_usuario || '';
@@ -991,8 +998,8 @@
                     <div class="post-menu">
                         <button class="post-menu-btn" onclick="toggleMenu(this)">⋯</button>
                         <div class="post-menu-dropdown">
-                            ${isMine ? `<button class="post-menu-item" onclick="abrirEdicao('${post.id}', '${postUserId}', '${escapeHtml(post.legenda)}')">✏️ Editar legenda</button>` : ''}
-                            <button class="post-menu-item danger" onclick="deletarPost('${post.id}', '${postUserId}')">🗑️ Excluir post</button>
+                            ${isMine ? `<button class="post-menu-item btn-editar-post" data-post-id="${post.id}" data-user-id="${postUserId}" data-legenda="${escapeAttr(post.legenda)}">✏️ Editar legenda</button>` : ''}
+                            <button class="post-menu-item danger btn-deletar-post" data-post-id="${post.id}" data-user-id="${postUserId}">🗑️ Excluir post</button>
                         </div>
                     </div>` : ''}
                 </div>
@@ -1011,6 +1018,8 @@
                     <span class="caption-user">@${userName}</span>${escapeHtml(post.legenda)}
                 </div>
                 <div class="post-time">${timeAgo}</div>`;
+
+            // Event listeners are handled via event delegation on feedContainer
 
             container.appendChild(card);
         }
@@ -1157,23 +1166,34 @@
 
         // ===== DELETE POST =====
         async function deletarPost(postId, postUserId) {
-            if (!confirm('Tem certeza que deseja excluir este post? Esta ação não pode ser desfeita.')) return;
-
+            console.log('deletarPost: Iniciado com', { postId, postUserId });
+            
+            const url = `${apiBaseUrl}/usuarios/${postUserId}/posts/${postId}`;
+            console.log('deletarPost: URL construída:', url);
+            
+            console.log('deletarPost: Enviando sem confirmação nativa...');
+            
+            console.log('deletarPost: Confirmação aceita, enviando fetch...');
             try {
-                const res = await fetch(`${apiBaseUrl}/usuarios/${postUserId}/posts/${postId}`, {
+                const res = await fetch(url, {
                     method: 'DELETE',
                     headers: authHeaders
                 });
+                console.log('deletarPost: Resposta do fetch recebida. Status:', res.status, 'OK:', res.ok);
+                
                 const result = await res.json();
+                console.log('deletarPost: JSON parseado:', result);
 
                 if (res.ok) {
+                    console.log('deletarPost: Sucesso. Chamando showAlert e recarregando feed.');
                     showAlert('Post excluído!');
                     carregarFeed();
                 } else {
+                    console.warn('deletarPost: Servidor retornou erro:', result);
                     showAlert(result.mensagem || 'Erro ao excluir', 'error');
                 }
             } catch (e) {
-                console.error('Exceção capturada em deletarPost:', e);
+                console.error('deletarPost: Exceção capturada:', e);
                 showAlert(`Erro de conexão: ${e.message || e}`, 'error');
             }
         }
@@ -1197,6 +1217,16 @@
             return div.innerHTML;
         }
 
+        function escapeAttr(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
         function formatTimeAgo(dateStr) {
             if (!dateStr) return '';
             const date = new Date(dateStr);
@@ -1212,6 +1242,30 @@
 
         // ===== INIT =====
         document.addEventListener('DOMContentLoaded', async () => {
+            // Event delegation for post menu actions (Edit and Delete)
+            const feedContainer = document.getElementById('feedContainer');
+            if (feedContainer) {
+                feedContainer.addEventListener('click', function(e) {
+                    const deleteBtn = e.target.closest('.btn-deletar-post');
+                    if (deleteBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Delete button clicked for post:', deleteBtn.dataset.postId, 'user:', deleteBtn.dataset.userId);
+                        deletarPost(deleteBtn.dataset.postId, deleteBtn.dataset.userId);
+                        return;
+                    }
+
+                    const editBtn = e.target.closest('.btn-editar-post');
+                    if (editBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Edit button clicked for post:', editBtn.dataset.postId, 'user:', editBtn.dataset.userId);
+                        abrirEdicao(editBtn.dataset.postId, editBtn.dataset.userId, editBtn.dataset.legenda);
+                        return;
+                    }
+                });
+            }
+
             await carregarMeuPerfil();
             await carregarUsuarios();
             await carregarFeed();
